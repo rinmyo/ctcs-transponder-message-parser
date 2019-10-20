@@ -1,13 +1,19 @@
 package ETCSPacks
 
-type ShuntingDangerousPack struct {
-	Part1 struct {
-		NID_PACKET uint16
-		Q_DIR      uint16
-		L_PACKET   uint16
-	}
+import "TransponderMsgParse/packets"
 
-	Part2 struct {
-		Q_ASPECT uint16
-	}
+const Etcs132Nid = 0b10000100
+
+type ShuntingDangerousPack struct {
+	packets.ETCS_Head
+
+	Q_ASPECT uint16
+}
+
+func (s ShuntingDangerousPack) Encode() ([]byte, error) {
+	panic("implement me")
+}
+
+func (s ShuntingDangerousPack) Decode([]byte) error {
+	panic("implement me")
 }
