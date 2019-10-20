@@ -21,3 +21,11 @@ type TemporarySpeedLimitPack struct {
 		V_TSR     uint16
 	}
 }
+
+func (t TemporarySpeedLimitPack) Encode() ([]byte, error) {
+	panic("implement me")
+}
+
+func (t TemporarySpeedLimitPack) Decode([]byte) error {
+	panic("implement me")
+}

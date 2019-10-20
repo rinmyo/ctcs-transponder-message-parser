@@ -19,3 +19,11 @@ type TrackSectionPack struct {
 		L_SECTION_K     uint16
 	}
 }
+
+func (t TrackSectionPack) Encode() ([]byte, error) {
+	panic("implement me")
+}
+
+func (t TrackSectionPack) Decode([]byte) error {
+	panic("implement me")
+}

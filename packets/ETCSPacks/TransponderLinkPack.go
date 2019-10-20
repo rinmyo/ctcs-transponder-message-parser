@@ -28,21 +28,14 @@ type TransponderLinkPack struct {
 	}
 }
 
-// constructor
-func NewTransponderLinkPack() *TransponderLinkPack {
-	return &TransponderLinkPack{
-		ETCS_Head: packets.ETCS_Head{
-			NID_PACKET: Etcs5Nid,
-		},
-	}
-}
-
 func (t TransponderLinkPack) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
 func (t *TransponderLinkPack) Decode(bytes []byte) error {
+	// 設置頭
 	t.ETCS_Head = *packets.NewETCS_Head(bytes[0:25])
+
 	cl := packets.GetPieces(bytes[25:], []uint16{15, 1, 10, 12, 1, 2, 6, 5})
 
 	t.D_LINK, t.Q_NEWCOUNTRY, t.NID_C, t.NID_BG, t.Q_LINKORIENTATION, t.Q_LINKREACTION, t.Q_LOCACC =

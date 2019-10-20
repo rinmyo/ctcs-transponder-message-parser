@@ -10,3 +10,11 @@ type LargeNumTurnoutPack struct {
 	D_TURNOUT uint16
 	V_TURNOUT uint16
 }
+
+func (l LargeNumTurnoutPack) Encode() ([]byte, error) {
+	panic("implement me")
+}
+
+func (l LargeNumTurnoutPack) Decode([]byte) error {
+	panic("implement me")
+}

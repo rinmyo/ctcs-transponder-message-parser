@@ -18,3 +18,11 @@ type LevelTransPack struct {
 		L_ACKLEVELTR_K uint16
 	}
 }
+
+func (l LevelTransPack) Encode() ([]byte, error) {
+	panic("implement me")
+}
+
+func (l LevelTransPack) Decode([]byte) error {
+	panic("implement me")
+}
