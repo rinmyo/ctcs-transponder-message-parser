@@ -1,8 +1,11 @@
 package CTCSPacks
 
-import "TransponderMsgParse/packets"
+import (
+	"TransponderMsgParse/packets"
+)
 
 type Ctcs1 struct {
+	packets.UserInfoPacket
 	packets.CTCS_Head
 
 	D_SIGNAL uint16
@@ -28,7 +31,7 @@ func (s Ctcs1) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s Ctcs1) Decode(binSlice []byte) error {
+func (s *Ctcs1) Decode(binSlice []byte) {
 	d := []uint16{9, 2, 13, 2, 15, 4, 5, 15, 5}
 	p := packets.GetPieces(binSlice[:], d)
 
@@ -39,14 +42,19 @@ func (s Ctcs1) Decode(binSlice []byte) error {
 		p[0], p[1], p[2], p[3],
 		p[4], p[5], p[6], p[7],
 		p[8]
+	s.Length += packets.Sum(d)
+
+	s.K = make([]struct {
+		NID_SIGNAL    uint16
+		NID_FREQUENCY uint16
+		L_SECTION     uint16
+	}, s.N_ITER)
 
 	//變長部分
 	for k := uint16(0); k < s.N_ITER; k++ {
 		d1 := []uint16{4, 5, 15}
-		p1 := packets.GetPieces(binSlice[packets.Sum(d)+packets.Sum(d1)*k:], d1)
+		p1 := packets.GetPieces(binSlice[s.Length:], d1)
 		s.K[k].NID_SIGNAL, s.K[k].NID_FREQUENCY, s.K[k].L_SECTION = p1[0], p1[1], p1[2]
+		s.Length += packets.Sum(d1)
 	}
-
-	return nil
-
 }

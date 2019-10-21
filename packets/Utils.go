@@ -38,3 +38,10 @@ func Sum(d []uint16) (sum uint16) {
 	}
 	return
 }
+
+func GetStr(binSlice []byte) (result string) {
+	for _, x := range binSlice {
+		result += string(x + 48)
+	}
+	return
+}

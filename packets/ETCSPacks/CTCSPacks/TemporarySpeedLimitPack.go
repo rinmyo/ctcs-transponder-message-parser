@@ -3,6 +3,8 @@ package CTCSPacks
 import "TransponderMsgParse/packets"
 
 type Ctcs2 struct {
+	packets.UserInfoPacket
+
 	packets.CTCS_Head
 
 	L_TSRarea uint16
@@ -20,11 +22,19 @@ type Ctcs2 struct {
 	}
 }
 
-func (t Ctcs2) Encode() ([]byte, error) {
+func (s Ctcs2) GetLength() uint16 {
+	return s.Length
+}
+
+func (s Ctcs2) GetNextPack() *packets.IEtcsPack {
+	return &s.NextPack
+}
+
+func (s Ctcs2) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (t Ctcs2) Decode([]byte) error {
+func (s Ctcs2) Decode([]byte) {
 	panic("implement me")
 }
 func init() {

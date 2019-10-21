@@ -3,6 +3,8 @@ package ETCSPacks
 import "TransponderMsgParse/packets"
 
 type Etcs21 struct {
+	packets.UserInfoPacket
+
 	packets.ETCS_Head
 
 	D_GRADIENT uint16
@@ -16,11 +18,11 @@ type Etcs21 struct {
 	}
 }
 
-func (l Etcs21) Encode() ([]byte, error) {
+func (s Etcs21) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (l Etcs21) Decode([]byte) error {
+func (s Etcs21) Decode([]byte) {
 	panic("implement me")
 }
 

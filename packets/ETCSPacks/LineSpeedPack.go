@@ -3,6 +3,8 @@ package ETCSPacks
 import "TransponderMsgParse/packets"
 
 type Etcs27 struct {
+	packets.UserInfoPacket
+
 	packets.ETCS_Head
 
 	D_STATIC uint16
@@ -36,7 +38,7 @@ func (s Etcs27) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s *Etcs27) Decode(binSlice []byte) error {
+func (s *Etcs27) Decode(binSlice []byte) {
 	// 設置頭
 	d := []uint16{8, 2, 13, 2, 15, 7, 1, 5} //擷取定長部分
 	p := packets.GetPieces(binSlice[:], d)
@@ -74,7 +76,8 @@ func (s *Etcs27) Decode(binSlice []byte) error {
 		}
 	}
 
-	return nil
+	s.NextPack = packets.GetPacket(string(binSlice[s.Length : s.Length+8]))
+	s.NextPack.Decode(binSlice[s.Length:])
 }
 
 func init() {

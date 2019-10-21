@@ -5,14 +5,14 @@ import (
 )
 
 type BinMessage struct {
-	head []byte
-	body []byte
+	head string
+	body string
 }
 
 func NewBinMessage(str string) *BinMessage {
 	return &BinMessage{
-		packets.Invert(str[0:50]),
-		packets.Invert(str[50 : 50+772]),
+		str[0:50],
+		str[50 : 50+772],
 	}
 }
 
@@ -45,29 +45,8 @@ func NewHead(headStr []byte) *Head {
 	}
 }
 
-func (bm BinMessage) ParseBody() {
-	bd := bm.body
-	for {
-		//begin of a packet is from 0
-		begin := 0
-
-		//finish with 11111111
-		if packets.BINSlice2Uint(bd[begin:begin+8]) == 0b11111111 {
-			return
-		}
-
-		//end of a packet is by the begin add a packet length
-		end := uint16(begin) + packets.BINSlice2Uint(bd[begin+10:begin+23])
-		parseBinUserPacket(bd[begin:end]) // begin 和 end 確定一個包
-		begin += int(end)                 //解析pk
-	}
-
-}
-
-// Judge the type of packet , then generate corresponding packet object, then decode the packet
-//only used for single packet
-func parseBinUserPacket(pkBinSlice []byte) (rpk packets.IEtcsPack) {
-	rpk = packets.GetPacket(string(pkBinSlice[0:8]))
-	_ = rpk.Decode(pkBinSlice)
+func (bm BinMessage) ParseBody() (fpk packets.IEtcsPack) {
+	fpk = packets.GetPacket(bm.body[0:8])
+	fpk.Decode(packets.Invert(bm.body))
 	return
 }
