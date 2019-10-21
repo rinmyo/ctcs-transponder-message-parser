@@ -34,6 +34,16 @@ func NewCTCS_Head(bytes []byte) *ETCS_Head {
 	}
 }
 
+var packetMap = make(map[string]IEtcsPack)
+
+func RegisterPacket(nidStr string, sample IEtcsPack) {
+	packetMap[nidStr] = sample
+}
+
+func GetPacket(nidStr string) IEtcsPack {
+	return packetMap[nidStr]
+}
+
 type IEtcsPack interface {
 	Encode() ([]byte, error)
 	Decode([]byte) error

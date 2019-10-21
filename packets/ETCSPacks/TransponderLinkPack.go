@@ -4,9 +4,7 @@ import (
 	"TransponderMsgParse/packets"
 )
 
-const Etcs5Nid = 0b00000101
-
-type TransponderLinkPack struct {
+type Etcs5 struct {
 	packets.ETCS_Head
 
 	D_LINK            uint16
@@ -28,11 +26,11 @@ type TransponderLinkPack struct {
 	}
 }
 
-func (t TransponderLinkPack) Encode() ([]byte, error) {
+func (t Etcs5) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (t *TransponderLinkPack) Decode(bytes []byte) error {
+func (t *Etcs5) Decode(bytes []byte) error {
 	// 設置頭
 	t.ETCS_Head = *packets.NewETCS_Head(bytes[0:25])
 
@@ -51,4 +49,8 @@ func (t *TransponderLinkPack) Decode(bytes []byte) error {
 
 	return nil
 
+}
+
+func init() {
+	packets.RegisterPacket("00000101", &Etcs5{})
 }

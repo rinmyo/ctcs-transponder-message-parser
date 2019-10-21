@@ -2,9 +2,7 @@ package ETCSPacks
 
 import "TransponderMsgParse/packets"
 
-const Etcs41Nid = 0b00101001
-
-type LevelTransPack struct {
+type Etcs41 struct {
 	packets.ETCS_Head
 
 	D_LEVELTR    uint16
@@ -19,10 +17,13 @@ type LevelTransPack struct {
 	}
 }
 
-func (l LevelTransPack) Encode() ([]byte, error) {
+func (l Etcs41) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (l LevelTransPack) Decode([]byte) error {
+func (l Etcs41) Decode([]byte) error {
 	panic("implement me")
+}
+func init() {
+	packets.RegisterPacket("00101001", &Etcs41{})
 }

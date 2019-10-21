@@ -2,9 +2,7 @@ package CTCSPacks
 
 import "TransponderMsgParse/packets"
 
-const Ctcs2Nid = 0b000000010
-
-type TemporarySpeedLimitPack struct {
+type Ctcs2 struct {
 	packets.CTCS_Head
 
 	L_TSRarea uint16
@@ -22,10 +20,13 @@ type TemporarySpeedLimitPack struct {
 	}
 }
 
-func (t TemporarySpeedLimitPack) Encode() ([]byte, error) {
+func (t Ctcs2) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (t TemporarySpeedLimitPack) Decode([]byte) error {
+func (t Ctcs2) Decode([]byte) error {
 	panic("implement me")
+}
+func init() {
+	packets.RegisterPacket("000000010", &Ctcs2{})
 }

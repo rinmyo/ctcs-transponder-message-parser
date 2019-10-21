@@ -2,9 +2,7 @@ package ETCSPacks
 
 import "TransponderMsgParse/packets"
 
-const Etcs27Nid = 0b00011011
-
-type LineSpeedPack struct {
+type Etcs27 struct {
 	packets.ETCS_Head
 
 	D_STATIC  uint16
@@ -24,10 +22,14 @@ type LineSpeedPack struct {
 	}
 }
 
-func (l LineSpeedPack) Encode() ([]byte, error) {
+func (l Etcs27) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (l LineSpeedPack) Decode([]byte) error {
+func (l Etcs27) Decode([]byte) error {
 	panic("implement me")
+}
+
+func init() {
+	packets.RegisterPacket("00011011", &Etcs27{})
 }

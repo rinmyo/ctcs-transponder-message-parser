@@ -2,18 +2,20 @@ package ETCSPacks
 
 import "TransponderMsgParse/packets"
 
-const Etcs132Nid = 0b10000100
-
-type ShuntingDangerousPack struct {
+type Etcs132 struct {
 	packets.ETCS_Head
 
 	Q_ASPECT uint16
 }
 
-func (s ShuntingDangerousPack) Encode() ([]byte, error) {
+func (s Etcs132) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s ShuntingDangerousPack) Decode([]byte) error {
+func (s Etcs132) Decode([]byte) error {
 	panic("implement me")
+}
+
+func init() {
+	packets.RegisterPacket("10000100", &Etcs132{})
 }

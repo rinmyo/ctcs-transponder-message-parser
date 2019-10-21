@@ -2,7 +2,6 @@ package main
 
 import (
 	"TransponderMsgParse/packets"
-	"TransponderMsgParse/packets/ETCSPacks"
 )
 
 type BinMessage struct {
@@ -63,23 +62,8 @@ func (bm BinMessage) ParseBody() {
 // Judge the type of packet , then generate corresponding packet object, then decode the packet
 //only used for single packet
 func parseBinUserPacket(pk []byte) (rpk packets.IEtcsPack) {
-
+	rpk = packets.GetPacket(string(pk[0:8]))
 	//NID Assert
-	switch nid := packets.Bytes2Uint(pk[0:8]); nid {
-	case ETCSPacks.Etcs5Nid:
-		rpk = &ETCSPacks.TransponderLinkPack{}
-	case ETCSPacks.Etcs21Nid:
-		rpk = &ETCSPacks.LineSlopePack{}
-	case ETCSPacks.Etcs27Nid:
-		rpk = &ETCSPacks.LineSpeedPack{}
-	case ETCSPacks.Etcs41Nid:
-		rpk = &ETCSPacks.LevelTransPack{}
-	case ETCSPacks.Etcs68Nid:
-		rpk = &ETCSPacks.SpecialSectionPack{}
-	case ETCSPacks.Etcs132Nid:
-		rpk = &ETCSPacks.ShuntingDangerousPack{}
-	}
-
 	_ = rpk.Decode(pk)
 	return
 }

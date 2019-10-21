@@ -2,19 +2,20 @@ package CTCSPacks
 
 import "TransponderMsgParse/packets"
 
-const Ctcs4Nid = 0b000000100
-
-type LargeNumTurnoutPack struct {
+type Ctcs4 struct {
 	packets.CTCS_Head
 
 	D_TURNOUT uint16
 	V_TURNOUT uint16
 }
 
-func (l LargeNumTurnoutPack) Encode() ([]byte, error) {
+func (l Ctcs4) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (l LargeNumTurnoutPack) Decode([]byte) error {
+func (l Ctcs4) Decode([]byte) error {
 	panic("implement me")
+}
+func init() {
+	packets.RegisterPacket("000000100", &Ctcs4{})
 }

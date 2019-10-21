@@ -2,9 +2,7 @@ package ETCSPacks
 
 import "TransponderMsgParse/packets"
 
-const Etcs68Nid = 0b01000100
-
-type SpecialSectionPack struct {
+type Etcs68 struct {
 	packets.ETCS_Head
 
 	Q_TRACKINIT uint16
@@ -20,10 +18,14 @@ type SpecialSectionPack struct {
 	}
 }
 
-func (s SpecialSectionPack) Encode() ([]byte, error) {
+func (s Etcs68) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s SpecialSectionPack) Decode([]byte) error {
+func (s Etcs68) Decode([]byte) error {
 	panic("implement me")
+}
+
+func init() {
+	packets.RegisterPacket("01000100", &Etcs68{})
 }

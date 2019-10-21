@@ -2,9 +2,7 @@ package CTCSPacks
 
 import "TransponderMsgParse/packets"
 
-const Ctcs1Nid = 0b000000001
-
-type TrackSectionPack struct {
+type Ctcs1 struct {
 	packets.CTCS_Head
 
 	D_SIGNAL uint16
@@ -20,10 +18,13 @@ type TrackSectionPack struct {
 	}
 }
 
-func (t TrackSectionPack) Encode() ([]byte, error) {
+func (t Ctcs1) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (t TrackSectionPack) Decode([]byte) error {
+func (t Ctcs1) Decode([]byte) error {
 	panic("implement me")
+}
+func init() {
+	packets.RegisterPacket("000000001", &Ctcs1{})
 }

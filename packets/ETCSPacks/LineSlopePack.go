@@ -2,9 +2,7 @@ package ETCSPacks
 
 import "TransponderMsgParse/packets"
 
-const Etcs21Nid = 0b00010101
-
-type LineSlopePack struct {
+type Etcs21 struct {
 	packets.ETCS_Head
 
 	D_GRADIENT uint16
@@ -18,10 +16,14 @@ type LineSlopePack struct {
 	}
 }
 
-func (l LineSlopePack) Encode() ([]byte, error) {
+func (l Etcs21) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (l LineSlopePack) Decode([]byte) error {
+func (l Etcs21) Decode([]byte) error {
 	panic("implement me")
+}
+
+func init() {
+	packets.RegisterPacket("00010101", &Etcs21{})
 }
