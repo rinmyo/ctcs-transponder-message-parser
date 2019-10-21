@@ -8,25 +8,33 @@ func Invert(str string) (bytes []byte) {
 	return
 }
 
-func Bytes2Uint(bytes []byte) (r uint16) {
-	for i, x := range bytes {
-		r = r + uint16(x<<(len(bytes)-i-1))
+func BINSlice2Uint(binSlice []byte) (r uint16) {
+	for i, x := range binSlice {
+		r = r + uint16(x<<(len(binSlice)-i-1))
 	}
 	return
 }
 
-func Uint2Bytes(num uint16, bytes *[]byte) {
-	for i, _ := range *bytes {
-		p := len(*bytes) - i - 1
-		(*bytes)[i] = byte(num & uint16(1<<p) >> p)
+func Uint2BINSlice(num uint16, binSlice *[]byte) {
+	for i, _ := range *binSlice {
+		p := len(*binSlice) - i - 1
+		(*binSlice)[i] = byte(num & uint16(1<<p) >> p)
 	}
 }
 
-func GetPieces(bytes []byte, num []uint16) (result []uint16) {
+func GetPieces(binSlice []byte, num []uint16) (result []uint16) {
 	result = make([]uint16, len(num))
 	p := 0
 	for i, x := range num {
-		result[i] = Bytes2Uint(bytes[p : p+int(x)])
+		result[i] = BINSlice2Uint(binSlice[p : p+int(x)])
+		p += int(x)
+	}
+	return
+}
+
+func Sum(d []uint16) (sum uint16) {
+	for _, x := range d {
+		sum += x
 	}
 	return
 }

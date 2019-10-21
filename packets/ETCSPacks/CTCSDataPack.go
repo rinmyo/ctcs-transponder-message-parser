@@ -15,24 +15,20 @@ type Etcs44 struct {
 	XXXXXX    packets.ICtcsPack
 }
 
-func (C Etcs44) Encode() ([]byte, error) {
+func (s Etcs44) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (C *Etcs44) Decode(bytes []byte) error {
-	// 設置頭
-	h := packets.GetPieces(bytes, []uint16{8, 2, 13})
-	C.Head = struct {
-		NID_PACKET uint16 `json:"nid_packet"`
-		Q_DIR      uint16 `json:"q_dir"`
-		L_PACKET   uint16 `json:"l_packet"`
-	}{
-		h[0], h[1], h[2],
-	}
+func (s *Etcs44) Decode(binSlice []byte) error {
+	d := []uint16{8, 2, 13, 9} //擷取定長部分
+	p := packets.GetPieces(binSlice[:], d)
+
+	s.Head.NID_PACKET, s.Head.Q_DIR, s.Head.L_PACKET, s.NID_XUSER =
+		p[0], p[1], p[2], p[3]
 
 	//Route the CTCS packet inside the ETCS-44
-	C.XXXXXX = packets.GetPacket(string(bytes[23 : 23+9]))
-	err := C.XXXXXX.Decode(bytes[23:])
+	s.XXXXXX = packets.GetPacket(string(binSlice[23 : 23+9]))
+	err := s.XXXXXX.Decode(binSlice[23:])
 	return err
 }
 

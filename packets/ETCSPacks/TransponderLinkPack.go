@@ -15,7 +15,8 @@ type Etcs5 struct {
 	Q_LINKREACTION    uint16
 	Q_LOCACC          uint16
 
-	K []struct {
+	N_ITER uint16
+	K      []struct {
 		D_LINK            uint16
 		Q_NEWCOUNTRY      uint16
 		NID_C             uint16
@@ -26,31 +27,34 @@ type Etcs5 struct {
 	}
 }
 
-func (t Etcs5) Encode() ([]byte, error) {
+func init() {
+	packets.RegisterPacket("00000101", &Etcs5{})
+}
+
+func (s Etcs5) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (t *Etcs5) Decode(bytes []byte) error {
-	// 設置頭
-	t.ETCS_Head = *packets.NewETCS_Head(bytes[0:25])
+func (s *Etcs5) Decode(binSlice []byte) error {
+	d := []uint16{8, 2, 13, 2, 15, 1, 10, 14, 1, 2, 6, 5} //劃分
+	p := packets.GetPieces(binSlice[:], d)                //切片
 
-	cl := packets.GetPieces(bytes[25:], []uint16{15, 1, 10, 12, 1, 2, 6, 5})
+	//定長部分
+	s.NID_PACKET, s.Q_DIR, s.L_PACKET, s.Q_SCALE, //頭
+		s.D_LINK, s.Q_NEWCOUNTRY, s.NID_C, s.NID_BG, s.Q_LINKORIENTATION, s.Q_LINKREACTION, s.Q_LOCACC,
+		s.N_ITER =
+		p[0], p[1], p[2], p[3],
+		p[4], p[5], p[6], p[7], p[8], p[9], p[10],
+		p[11]
 
-	t.D_LINK, t.Q_NEWCOUNTRY, t.NID_C, t.NID_BG, t.Q_LINKORIENTATION, t.Q_LINKREACTION, t.Q_LOCACC =
-		cl[0], cl[1], cl[2], cl[3], cl[4], cl[5], cl[6]
-
-	n := cl[7] //求取有幾個變長部分
-
-	for i := 0; i < int(n); i++ {
-		cl = packets.GetPieces(bytes[25+49+5+49*i:], []uint16{15, 1, 10, 12, 1, 2, 6})
-		t.K[i].D_LINK, t.K[i].Q_NEWCOUNTRY, t.K[i].NID_C, t.K[i].NID_BG, t.K[i].Q_LINKORIENTATION, t.K[i].Q_LINKREACTION, t.K[i].Q_LOCACC =
-			cl[0], cl[1], cl[2], cl[3], cl[4], cl[5], cl[6]
+	//變長部分
+	for i := uint16(0); i < s.N_ITER; i++ {
+		d1 := []uint16{15, 1, 10, 14, 1, 2, 6}
+		p1 := packets.GetPieces(binSlice[packets.Sum(d)+packets.Sum(d1)*i:], d1)
+		s.K[i].D_LINK, s.K[i].Q_NEWCOUNTRY, s.K[i].NID_C, s.K[i].NID_BG, s.K[i].Q_LINKORIENTATION, s.K[i].Q_LINKREACTION, s.K[i].Q_LOCACC =
+			p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], p1[6]
 	}
 
 	return nil
 
-}
-
-func init() {
-	packets.RegisterPacket("00000101", &Etcs5{})
 }

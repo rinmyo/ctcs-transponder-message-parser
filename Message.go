@@ -48,22 +48,26 @@ func NewHead(headStr []byte) *Head {
 func (bm BinMessage) ParseBody() {
 	bd := bm.body
 	for {
-		p := 0
-		if packets.Bytes2Uint(bd[p:p+8]) == 0b11111111 {
+		//begin of a packet is from 0
+		begin := 0
+
+		//finish with 11111111
+		if packets.BINSlice2Uint(bd[begin:begin+8]) == 0b11111111 {
 			return
-		} //結束
-		pk := bd[p : uint16(p)+packets.Bytes2Uint(bd[p+10:p+26])] //拆包，自指針起次個包長的部分擷取下來作爲pk
-		parseBinUserPacket(pk)                                    //解析pk
-		p += int(packets.Bytes2Uint(bd[10:26]))                   //指針移到下一個包的包頭
+		}
+
+		//end of a packet is by the begin add a packet length
+		end := uint16(begin) + packets.BINSlice2Uint(bd[begin+10:begin+23])
+		parseBinUserPacket(bd[begin:end]) // begin 和 end 確定一個包
+		begin += int(end)                 //解析pk
 	}
 
 }
 
 // Judge the type of packet , then generate corresponding packet object, then decode the packet
 //only used for single packet
-func parseBinUserPacket(pk []byte) (rpk packets.IEtcsPack) {
-	rpk = packets.GetPacket(string(pk[0:8]))
-	//NID Assert
-	_ = rpk.Decode(pk)
+func parseBinUserPacket(pkBinSlice []byte) (rpk packets.IEtcsPack) {
+	rpk = packets.GetPacket(string(pkBinSlice[0:8]))
+	_ = rpk.Decode(pkBinSlice)
 	return
 }
