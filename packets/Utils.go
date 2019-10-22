@@ -10,8 +10,9 @@ func Invert(str string) (bytes []byte) {
 
 func BINSlice2Uint(binSlice []byte) (r uint16) {
 	for i, x := range binSlice {
-		r = r + uint16(x<<(len(binSlice)-i-1))
+		r = r + uint16(int(x)<<(len(binSlice)-i-1))
 	}
+
 	return
 }
 

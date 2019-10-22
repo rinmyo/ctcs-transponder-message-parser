@@ -47,14 +47,14 @@ func NewHead(headStr []byte) *Head {
 
 func (bm BinMessage) ParseBody() (mmap map[int]packets.IEtcsPack) {
 	mmap = map[int]packets.IEtcsPack{}
-	fpk := packets.GetPacket(packets.GetStr(bm.body[0:8]))
+	var len uint16
 	for i := 0; ; i++ {
-		bm.body = fpk.Decode(bm.body)
-		mmap[i] = fpk
-
 		if packets.GetStr(bm.body[0:8]) == "11111111" { //結束則返回
 			return
 		}
-		fpk = packets.GetPacket(packets.GetStr(bm.body[0:8])) //否則繼續解析
+		fpk := packets.GetPacket(packets.GetStr(bm.body[i:8]))
+		fpk.Decode(bm.body[len:])
+
+		packets.GetPacket(packets.GetStr(bm.body[0:8])) //否則繼續解析
 	}
 }

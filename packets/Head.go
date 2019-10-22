@@ -24,21 +24,9 @@ func GetPacket(nidStr string) IEtcsPack {
 	return packetMap[nidStr]
 }
 
-type UserInfoPacket struct {
-	Length uint16
-}
-
-func (u UserInfoPacket) Encode() ([]byte, error) {
-	panic("implement me")
-}
-
-func (u UserInfoPacket) Decode(binSlice []byte) []byte {
-	panic("implement me")
-}
-
 type IEtcsPack interface {
 	Encode() ([]byte, error)
-	Decode(binSlice []byte) []byte
+	Decode(binSlice []byte)
 }
 
 type ICtcsPack interface {

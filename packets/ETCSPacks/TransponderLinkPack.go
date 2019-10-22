@@ -5,8 +5,6 @@ import (
 )
 
 type Etcs5 struct {
-	packets.UserInfoPacket
-
 	packets.ETCS_Head
 
 	D_LINK            uint16
@@ -37,7 +35,7 @@ func (s Etcs5) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s *Etcs5) Decode(binSlice []byte) []byte {
+func (s *Etcs5) Decode(binSlice []byte) {
 	d := []uint16{8, 2, 13, 2, 15, 1, 10, 14, 1, 2, 6, 5} //劃分
 	p := packets.GetPieces(binSlice[:], d)                //切片
 
@@ -48,7 +46,6 @@ func (s *Etcs5) Decode(binSlice []byte) []byte {
 		p[0], p[1], p[2], p[3],
 		p[4], p[5], p[6], p[7], p[8], p[9], p[10],
 		p[11]
-	s.Length += packets.Sum(d)
 
 	s.K = make([]struct {
 		D_LINK            uint16
@@ -63,11 +60,9 @@ func (s *Etcs5) Decode(binSlice []byte) []byte {
 	//變長部分
 	for i := uint16(0); i < s.N_ITER; i++ {
 		d1 := []uint16{15, 1, 10, 14, 1, 2, 6}
-		p1 := packets.GetPieces(binSlice[s.Length:], d1)
+		p1 := packets.GetPieces(binSlice[packets.Sum(d):], d1)
 		s.K[i].D_LINK, s.K[i].Q_NEWCOUNTRY, s.K[i].NID_C, s.K[i].NID_BG, s.K[i].Q_LINKORIENTATION, s.K[i].Q_LINKREACTION, s.K[i].Q_LOCACC =
 			p1[0], p1[1], p1[2], p1[3], p1[4], p1[5], p1[6]
-		s.Length += packets.Sum(d1)
 	}
 
-	return binSlice[s.Length:]
 }

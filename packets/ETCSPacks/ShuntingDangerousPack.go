@@ -3,8 +3,6 @@ package ETCSPacks
 import "TransponderMsgParse/packets"
 
 type Etcs132 struct {
-	packets.UserInfoPacket
-
 	Head struct {
 		NID_PACKET uint16 `json:"nid_packet"`
 		Q_DIR      uint16 `json:"q_dir"`
@@ -18,7 +16,7 @@ func (s Etcs132) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s *Etcs132) Decode(binSlice []byte) []byte {
+func (s *Etcs132) Decode(binSlice []byte) {
 	// 設置頭
 	d := []uint16{8, 2, 13, 1}
 	p := packets.GetPieces(binSlice, d)
@@ -28,7 +26,6 @@ func (s *Etcs132) Decode(binSlice []byte) []byte {
 		p[0], p[1], p[2],
 		p[3]
 
-	return binSlice[s.Length:]
 }
 
 func init() {

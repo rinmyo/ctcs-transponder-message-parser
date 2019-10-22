@@ -3,8 +3,6 @@ package ETCSPacks
 import "TransponderMsgParse/packets"
 
 type Etcs68 struct {
-	packets.UserInfoPacket
-
 	packets.ETCS_Head
 
 	Q_TRACKINIT uint16
@@ -30,7 +28,7 @@ func (s Etcs68) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s *Etcs68) Decode(binSlice []byte) []byte {
+func (s *Etcs68) Decode(binSlice []byte) {
 	d := []uint16{8, 2, 13, 2, 1, 15, 15, 15, 4, 5} //擷取定長部分
 	p := packets.GetPieces(binSlice[:], d)
 
@@ -52,6 +50,4 @@ func (s *Etcs68) Decode(binSlice []byte) []byte {
 		p1 := packets.GetPieces(binSlice[packets.Sum(d)+packets.Sum(d1)*i:], d1)
 		s.K[i].D_TRACKCOND, s.K[i].L_TRACKCOND, s.K[i].M_TRACKCOND = p1[0], p1[1], p1[2]
 	}
-
-	return binSlice[s.Length:]
 }
