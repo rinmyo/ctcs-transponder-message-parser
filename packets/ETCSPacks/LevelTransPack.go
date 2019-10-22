@@ -23,9 +23,11 @@ func (s Etcs41) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s Etcs41) Decode([]byte) {
-	panic("implement me")
+func (s Etcs41) Decode(binSlice []byte) []byte {
+
+	return binSlice[s.Length:]
 }
+
 func init() {
 	packets.RegisterPacket("00101001", &Etcs41{})
 }

@@ -22,21 +22,14 @@ type Ctcs2 struct {
 	}
 }
 
-func (s Ctcs2) GetLength() uint16 {
-	return s.Length
-}
-
-func (s Ctcs2) GetNextPack() *packets.IEtcsPack {
-	return &s.NextPack
-}
-
 func (s Ctcs2) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s Ctcs2) Decode([]byte) {
-	panic("implement me")
+func (s Ctcs2) Decode(binSlice []byte) []byte {
+	return binSlice[s.Length:]
 }
+
 func init() {
 	packets.RegisterPacket("000000010", &Ctcs2{})
 }

@@ -25,31 +25,20 @@ func GetPacket(nidStr string) IEtcsPack {
 }
 
 type UserInfoPacket struct {
-	Length   uint16
-	NextPack IEtcsPack
+	Length uint16
 }
 
 func (u UserInfoPacket) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (u UserInfoPacket) Decode(binSlice []byte) {
+func (u UserInfoPacket) Decode(binSlice []byte) []byte {
 	panic("implement me")
-}
-
-func (u UserInfoPacket) GetLength() uint16 {
-	return u.Length
-}
-
-func (u UserInfoPacket) GetNextPack() *IEtcsPack {
-	return &u.NextPack
 }
 
 type IEtcsPack interface {
 	Encode() ([]byte, error)
-	Decode(binSlice []byte)
-	GetLength() uint16
-	GetNextPack() *IEtcsPack
+	Decode(binSlice []byte) []byte
 }
 
 type ICtcsPack interface {

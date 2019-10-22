@@ -2,7 +2,6 @@ package ETCSPacks
 
 import (
 	"TransponderMsgParse/packets"
-	"fmt"
 )
 
 type Etcs44 struct {
@@ -22,21 +21,20 @@ func (s Etcs44) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s *Etcs44) Decode(binSlice []byte) {
+func (s *Etcs44) Decode(binSlice []byte) []byte {
 	d := []uint16{8, 2, 13, 9} //擷取定長部分
 	p := packets.GetPieces(binSlice[:], d)
 
 	s.Head.NID_PACKET, s.Head.Q_DIR, s.Head.L_PACKET, s.NID_XUSER =
 		p[0], p[1], p[2], p[3]
-	s.Length += packets.Sum(d)
+	s.Length += packets.Sum(d) - 9
+
 	s.XXXXXX = packets.GetPacket(packets.GetStr(binSlice[23 : 23+9]))
-	s.XXXXXX.Decode(binSlice[23:])
+	xl := len(binSlice[23:]) - len(s.XXXXXX.Decode(binSlice[23:]))
 
-	s.Length += s.XXXXXX.GetLength() - 9 //重複了9位
+	s.Length += uint16(xl) //重複了9位
 
-	s.NextPack = packets.GetPacket(packets.GetStr(binSlice[s.Length : s.Length+8]))
-	fmt.Println(packets.GetStr(binSlice[s.Length : s.Length+8]))
-	s.NextPack.Decode(binSlice[s.Length:])
+	return binSlice[s.Length:]
 }
 
 func init() {

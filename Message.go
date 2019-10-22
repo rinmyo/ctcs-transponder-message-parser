@@ -5,14 +5,14 @@ import (
 )
 
 type BinMessage struct {
-	head string
-	body string
+	head []byte
+	body []byte
 }
 
 func NewBinMessage(str string) *BinMessage {
 	return &BinMessage{
-		str[0:50],
-		str[50 : 50+772],
+		packets.Invert(str[0:50]),
+		packets.Invert(str[50 : 50+772]),
 	}
 }
 
@@ -45,8 +45,16 @@ func NewHead(headStr []byte) *Head {
 	}
 }
 
-func (bm BinMessage) ParseBody() (fpk packets.IEtcsPack) {
-	fpk = packets.GetPacket(bm.body[0:8])
-	fpk.Decode(packets.Invert(bm.body))
-	return
+func (bm BinMessage) ParseBody() (mmap map[int]packets.IEtcsPack) {
+	mmap = map[int]packets.IEtcsPack{}
+	fpk := packets.GetPacket(packets.GetStr(bm.body[0:8]))
+	for i := 0; ; i++ {
+		bm.body = fpk.Decode(bm.body)
+		mmap[i] = fpk
+
+		if packets.GetStr(bm.body[0:8]) == "11111111" { //結束則返回
+			return
+		}
+		fpk = packets.GetPacket(packets.GetStr(bm.body[0:8])) //否則繼續解析
+	}
 }

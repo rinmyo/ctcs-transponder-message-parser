@@ -36,7 +36,7 @@ func (s Etcs79) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s *Etcs79) Decode(binSlice []byte) {
+func (s *Etcs79) Decode(binSlice []byte) []byte {
 	d := []uint16{8, 2, 13, 2, 1, 10, 14, 15, 1, 20, 5} //劃分
 	p := packets.GetPieces(binSlice[:], d)              //切片
 
@@ -68,6 +68,5 @@ func (s *Etcs79) Decode(binSlice []byte) {
 		s.Length += packets.Sum(d1)
 	}
 
-	s.NextPack = packets.GetPacket(string(binSlice[s.Length : s.Length+8]))
-	s.NextPack.Decode(binSlice[s.Length:])
+	return binSlice[s.Length:]
 }

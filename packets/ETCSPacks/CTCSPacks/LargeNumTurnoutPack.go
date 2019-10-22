@@ -11,21 +11,14 @@ type Ctcs4 struct {
 	V_TURNOUT uint16
 }
 
-func (s Ctcs4) GetLength() uint16 {
-	return s.Length
-}
-
-func (s Ctcs4) GetNextPack() *packets.IEtcsPack {
-	return &s.NextPack
-}
-
 func (s Ctcs4) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s Ctcs4) Decode([]byte) {
-	panic("implement me")
+func (s Ctcs4) Decode(binSlice []byte) []byte {
+	return binSlice[s.Length:]
 }
+
 func init() {
 	packets.RegisterPacket("000000100", &Ctcs4{})
 }

@@ -22,8 +22,9 @@ func (s Etcs21) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s Etcs21) Decode([]byte) {
-	panic("implement me")
+func (s Etcs21) Decode(binSlice []byte) []byte {
+
+	return binSlice[s.Length:]
 }
 
 func init() {

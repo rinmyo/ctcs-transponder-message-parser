@@ -31,7 +31,7 @@ func (s Ctcs1) Encode() ([]byte, error) {
 	panic("implement me")
 }
 
-func (s *Ctcs1) Decode(binSlice []byte) {
+func (s *Ctcs1) Decode(binSlice []byte) []byte {
 	d := []uint16{9, 2, 13, 2, 15, 4, 5, 15, 5}
 	p := packets.GetPieces(binSlice[:], d)
 
@@ -57,4 +57,6 @@ func (s *Ctcs1) Decode(binSlice []byte) {
 		s.K[k].NID_SIGNAL, s.K[k].NID_FREQUENCY, s.K[k].L_SECTION = p1[0], p1[1], p1[2]
 		s.Length += packets.Sum(d1)
 	}
+
+	return binSlice[s.Length:]
 }
