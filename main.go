@@ -11,9 +11,9 @@ func main() {
 		a += "0"
 	}
 
-	//b := NewBinMessage(a)
+	b := NewBinMessage(str)
 
-	c := Decode2EtcsPacket("00011011" + a)
+	c := Decode2EtcsPacket(b.body)
 	fmt.Println(c)
 
 }

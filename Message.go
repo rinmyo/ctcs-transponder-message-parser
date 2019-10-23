@@ -46,7 +46,7 @@ func (msg BinMessage) Decode2FrameMark() (result FrameMark) {
 func Decode2EtcsPacket(binStr string) (result []UserInfoPacket) {
 	varLengthMap := make(map[interface{}]interface{})
 	result = make([]UserInfoPacket, 0)
-
+	fmt.Println(binStr[0:8])
 	b, err := ioutil.ReadFile("./packets/ETCS-" + strconv.Itoa(BIN2DEC(binStr[0:8])) + ".yml")
 	if err != nil {
 		fmt.Print(err)
@@ -82,19 +82,21 @@ func parseUnfixedPart(length int, bin string, varLengthMap map[interface{}]inter
 	end := 0 //尾指針
 
 	for i := 0; i < length; i++ {
+		fmt.Println(i)
 		result[i] = make(map[string]interface{})
 		// 該循環僅給value爲整數複製
 		for k, v := range varLengthMap {
 			// value 是當前部分的長度
 			if value, ok := v.(int); ok {
 
+				fmt.Println(end, end+value)
 				// 如果是數字的話
-				result[i][k.(string)] = BIN2DEC(bin[end : end+int(value)])
-				end += int(value)
+				result[i][k.(string)] = BIN2DEC(bin[end : end+value])
+				end += value
 
 				if len(k.(string)) == 8 && k.(string)[0:6] == "N_ITER" {
 					arr := k.(string)[7:] + "_ARRAY"
-					result[i][arr] = parseUnfixedPart(int(value), bin[end:], varLengthMap[arr].(map[interface{}]interface{}))
+					result[i][arr] = parseUnfixedPart(value, bin[end:], varLengthMap[arr].(map[interface{}]interface{}))
 				}
 			}
 		}
