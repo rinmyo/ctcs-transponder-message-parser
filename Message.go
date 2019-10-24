@@ -19,9 +19,9 @@ func NewBinMessage(str string) *BinMessage {
 	}
 }
 
-func (msg BinMessage) Decode2FrameMark() (result FrameMark) {
-	varLengthMap := make(map[string]int) //fm爲長度map
-	result = make(FrameMark)
+func (msg BinMessage) Decode2FrameMark() (frameMark YML) {
+	varLengthMap := make(YML, 0) //fm爲長度map
+	frameMark = make(YML, 0)
 
 	b, err := ioutil.ReadFile("./packets/FRAMEMARK.yml")
 	if err != nil {
@@ -34,35 +34,42 @@ func (msg BinMessage) Decode2FrameMark() (result FrameMark) {
 	}
 
 	i := 0 //counter
-	for k, v := range varLengthMap {
-		result[k] = BIN2DEC(msg.head[i : i+v])
-		i = v
+	for _, v := range varLengthMap {
+		frameMark = append(frameMark, yaml.MapItem{
+			Key:   v.Key,
+			Value: BIN2DEC(msg.head[i : i+v.Value.(int)]),
+		})
+		i += v.Value.(int)
 	}
 
 	return
 }
 
-//解析單個包
-func Decode2EtcsPacket(binStr string) (result []UserInfoPacket) {
-	varLengthMap := make(map[interface{}]interface{})
-	result = make([]UserInfoPacket, 0)
-	fmt.Println(binStr[0:8])
-	b, err := ioutil.ReadFile("./packets/ETCS-" + strconv.Itoa(BIN2DEC(binStr[0:8])) + ".yml")
-	if err != nil {
-		fmt.Print(err)
-	}
+func Decode2EtcsPacket(binStr string) (result []YML) {
+	//要有序
+	varLengthMap := make(YML, 0)
+	result = make([]YML, 0)
 
-	err = yaml.Unmarshal([]byte(b), &varLengthMap)
-	if err != nil {
-		panic(err)
-	}
-
-	//將全部視爲一個長度爲一的循環體
+	//視爲循環體之長度唯一
 	for end := 0; end < 772; {
+
+		b, err := ioutil.ReadFile("./packets/ETCS-" + strconv.Itoa(BIN2DEC(binStr[end:end+8])) + ".yml")
+		if err != nil {
+			fmt.Print(err)
+		}
+
+		err = yaml.Unmarshal([]byte(b), &varLengthMap)
+		if err != nil {
+			panic(err)
+		}
+
 		if binStr[end:end+8] == "11111111" {
 			fmt.Println("解析結束")
+			return
 		}
-		packetLength := BIN2DEC(binStr[end+10 : end+23])
+
+		fmt.Println("遇到", "ETCS-"+strconv.Itoa(BIN2DEC(binStr[end:end+8])))
+		packetLength := BIN2DEC(binStr[end+10 : end+23]) //包長
 		fixedPart := parseUnfixedPart(1, binStr[end:end+packetLength], varLengthMap)[0]
 		result = append(result, fixedPart)
 		end += packetLength
@@ -73,67 +80,84 @@ func Decode2EtcsPacket(binStr string) (result []UserInfoPacket) {
 }
 
 /**
-* 僅僅解析單個用戶信息包
-length 長度 bin 待解析的二進制字符串 format 需要解析至的格式，string爲變量名， int爲該變量的長度
+* 僅譯用戶信息包之單個也
+length爲其長 夫bin者二進位字符串待解析者也 夫varLengthMap者，模板也，
 */
-func parseUnfixedPart(length int, bin string, varLengthMap map[interface{}]interface{}) []map[string]interface{} {
-	result := make([]map[string]interface{}, length)
+func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
+	result = make([]YML, length)
 
 	end := 0 //尾指針
 
 	for i := 0; i < length; i++ {
-		fmt.Println(i)
-		result[i] = make(map[string]interface{})
+		result[i] = make(YML, 0)
 		// 該循環僅給value爲整數複製
 		for k, v := range varLengthMap {
-			// value 是當前部分的長度
-			if value, ok := v.(int); ok {
 
-				fmt.Println(end, end+value)
-				// 如果是數字的話
-				result[i][k.(string)] = BIN2DEC(bin[end : end+value])
+			fmt.Println("本輪", k, v)
+
+			//若v.Value爲數字，則value爲其長
+			//於任意包，皆應先取其部之定長
+			if value, ok := v.Value.(int); ok {
+				result[i] = append(result[i], yaml.MapItem{
+					Key:   v.Key,
+					Value: BIN2DEC(bin[end : end+value]),
+				})
+
+				fmt.Println("結果", result[i][k], bin[end:end+value], end, end+value, "\n")
 				end += value
+			}
 
-				if len(k.(string)) == 8 && k.(string)[0:6] == "N_ITER" {
-					arr := k.(string)[7:] + "_ARRAY"
-					result[i][arr] = parseUnfixedPart(value, bin[end:], varLengthMap[arr].(map[interface{}]interface{}))
+			//XXXXXX可得是包爲 etcs44， 同得NID_XUSER乃前位者也
+			if v.Key == "XXXXXX" {
+				fmt.Println("遇到XXXXXX, 啓用", "./packets/CTCS-"+strconv.Itoa(result[i][k-1].Value.(int)))
+				b, err := ioutil.ReadFile("./packets/CTCS-" + strconv.Itoa(result[i][k-1].Value.(int)) + ".yml") //啓yml檔之相對者
+				if err != nil {
+					fmt.Print(err)
 				}
-			}
-		}
+				//譯至varLengthMap
+				ctcsVarLengthMap := make(YML, 0) //fm爲長度map
 
-		//若是etcs44單獨處理
-		if result[i]["NID_PACKET"] == 44 {
+				err = yaml.Unmarshal([]byte(b), &ctcsVarLengthMap)
+				if err != nil {
+					panic(err)
+				}
 
-			b, err := ioutil.ReadFile("./packets/CTCS-" + strconv.Itoa(result[i]["NID_XUSER"].(int)) + ".yml") //打開對應的yml檔案
-			if err != nil {
-				fmt.Print(err)
-			}
-			//解析到varLengthMap中
-			err = yaml.Unmarshal([]byte(b), &varLengthMap)
-			if err != nil {
-				panic(err)
+				packetLength := BIN2DEC(bin[10:23])
+				fmt.Println("包長：", bin[10:23], "DEC", packetLength)
+				//每ETCS-44僅單CTCS之得嵌
+				result[i] = append(result[i], yaml.MapItem{
+					Key:   v.Key,
+					Value: parseUnfixedPart(1, bin[23:packetLength], ctcsVarLengthMap)[0],
+				})
 			}
 
-			result[i]["XXXXXX"] = parseUnfixedPart(1, bin[23:result[i]["L_PACKET"].(int)], varLengthMap)[0]
+			//若所遇爲數組，if之首者判斷定通過不得
+			if v.Key.(string)[2:] == "ARRAY" {
+				num := result[i][k-1].Value.(int) //數所嵌者
+
+				if num == 0 {
+					fmt.Println("長度爲零，略過數組 \n")
+					result[i] = append(result[i], yaml.MapItem{})
+					continue
+				}
+
+				fmt.Println("=====遇到", v.Key, "開始遞歸=====\n")
+				result[i] = append(result[i], yaml.MapItem{
+					Key:   v.Key,
+					Value: parseUnfixedPart(num, bin[end:], v.Value.(YML)),
+				})
+				fmt.Println("=====結束遞歸", v.Key, "=====\n")
+			}
 
 		}
 
 	}
-
-	return result
+	return
 }
 
-//幀標誌
-type FrameMark map[string]int
+//template
+type YML yaml.MapSlice
 
-//用戶信息包
-type UserInfoPacket map[string]interface{}
+func (YML) GetElement(interface{}) {
 
-//解包到json字符串
-func (p UserInfoPacket) Parse2json() (result string) {
-	data, err := yaml.Marshal(map[string]interface{}(p))
-	if err != nil {
-		panic(err)
-	}
-	return string(data)
 }

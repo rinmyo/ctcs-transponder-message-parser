@@ -15,9 +15,9 @@ func DEC2BIN(num int, binSlice *[]byte) {
 	}
 }
 
-func Sum(d []uint16) (sum uint16) {
-	for _, x := range d {
-		sum += x
+func Sum(yml YML) (sum int) {
+	for _, x := range yml {
+		sum += x.Value.(int)
 	}
 	return
 }
