@@ -52,6 +52,10 @@ func Decode2EtcsPacket(binStr string) (result []YML) {
 
 	//視爲循環體之長度唯一
 	for end := 0; end < 772; {
+		if binStr[end:end+8] == "11111111" {
+			fmt.Println("解析結束")
+			return
+		}
 
 		b, err := ioutil.ReadFile("./packets/ETCS-" + strconv.Itoa(BIN2DEC(binStr[end:end+8])) + ".yml")
 		if err != nil {
@@ -61,11 +65,6 @@ func Decode2EtcsPacket(binStr string) (result []YML) {
 		err = yaml.Unmarshal([]byte(b), &varLengthMap)
 		if err != nil {
 			panic(err)
-		}
-
-		if binStr[end:end+8] == "11111111" {
-			fmt.Println("解析結束")
-			return
 		}
 
 		fmt.Println("遇到", "ETCS-"+strconv.Itoa(BIN2DEC(binStr[end:end+8])))
@@ -92,18 +91,45 @@ func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
 		result[i] = make(YML, 0)
 		// 該循環僅給value爲整數複製
 		for k, v := range varLengthMap {
-
 			fmt.Println("本輪", k, v)
 
 			//若v.Value爲數字，則value爲其長
 			//於任意包，皆應先取其部之定長
 			if value, ok := v.Value.(int); ok {
+				val := BIN2DEC(bin[end : end+value])
+
+				//ETCS-68
+				if v.Key == "D_TRACKINIT" {
+					if result[i][k-1].Value == 0 {
+						result[i] = append(result[i], yaml.MapItem{
+							Key:   -1,
+							Value: val,
+						})
+						continue
+					} else {
+						result[i] = append(result[i], yaml.MapItem{
+							Key:   v.Key,
+							Value: val,
+						})
+						break
+					}
+				}
+
+				//ETCS-79
+				if v.Key == "NID_C" && len(result[i][len(result[i])-1].Key.(string)) >= 12 && result[i][len(result[i])-1].Key.(string)[:12] == "Q_NEWCOUNTRY" && result[i][len(result[i])-1].Value == 0 {
+					result[i] = append(result[i], yaml.MapItem{
+						Key:   -1,
+						Value: val,
+					})
+					continue
+				}
+
 				result[i] = append(result[i], yaml.MapItem{
 					Key:   v.Key,
-					Value: BIN2DEC(bin[end : end+value]),
+					Value: val,
 				})
 
-				fmt.Println("結果", result[i][k], bin[end:end+value], end, end+value, "\n")
+				fmt.Println("結果", i, k, result[i][len(result[i])-1], "二進制：", bin[end:end+value], ",從", end, "到", end+value, "\n")
 				end += value
 			}
 
@@ -123,7 +149,7 @@ func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
 				}
 
 				packetLength := BIN2DEC(bin[10:23])
-				fmt.Println("包長：", bin[10:23], "DEC", packetLength)
+				fmt.Println("包長：", bin[10:23], "DEC:", packetLength)
 				//每ETCS-44僅單CTCS之得嵌
 				result[i] = append(result[i], yaml.MapItem{
 					Key:   v.Key,
