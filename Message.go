@@ -101,10 +101,7 @@ func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
 				//ETCS-68
 				if v.Key == "D_TRACKINIT" {
 					if result[i][k-1].Value == 0 {
-						result[i] = append(result[i], yaml.MapItem{
-							Key:   -1,
-							Value: val,
-						})
+						result[i] = append(result[i], yaml.MapItem{})
 						continue
 					} else {
 						result[i] = append(result[i], yaml.MapItem{
@@ -117,10 +114,7 @@ func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
 
 				//ETCS-79
 				if v.Key == "NID_C" && len(result[i][len(result[i])-1].Key.(string)) >= 12 && result[i][len(result[i])-1].Key.(string)[:12] == "Q_NEWCOUNTRY" && result[i][len(result[i])-1].Value == 0 {
-					result[i] = append(result[i], yaml.MapItem{
-						Key:   -1,
-						Value: val,
-					})
+					result[i] = append(result[i], yaml.MapItem{})
 					continue
 				}
 
@@ -183,7 +177,3 @@ func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
 
 //template
 type YML yaml.MapSlice
-
-func (YML) GetElement(interface{}) {
-
-}
