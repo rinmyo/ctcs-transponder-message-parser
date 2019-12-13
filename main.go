@@ -18,11 +18,10 @@ func main() {
 	}
 
 	b := NewBinMessage((string)(str))
+	fmt.Println(b.Decode2FrameMark())
 
 	c := Decode2EtcsPacket(b.body)
-	//fmt.Println(b.Decode2FrameMark())
 	for _, x := range c {
 		fmt.Println(x)
 	}
-
 }

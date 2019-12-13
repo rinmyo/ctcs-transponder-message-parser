@@ -53,7 +53,7 @@ func Decode2EtcsPacket(binStr string) (result []YML) {
 	//視爲循環體之長度唯一
 	for end := 0; end < 772; {
 		if binStr[end:end+8] == "11111111" {
-			fmt.Println("解析結束")
+			//			fmt.Println("解析結束")
 			return
 		}
 
@@ -67,7 +67,7 @@ func Decode2EtcsPacket(binStr string) (result []YML) {
 			panic(err)
 		}
 
-		fmt.Println("遇到", "ETCS-"+strconv.Itoa(BIN2DEC(binStr[end:end+8])))
+		//		fmt.Println("遇到", "ETCS-"+strconv.Itoa(BIN2DEC(binStr[end:end+8])))
 		packetLength := BIN2DEC(binStr[end+10 : end+23]) //包長
 		fixedPart := parseUnfixedPart(1, binStr[end:end+packetLength], varLengthMap)[0]
 		result = append(result, fixedPart)
@@ -91,7 +91,7 @@ func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
 		result[i] = make(YML, 0)
 		// 該循環僅給value爲整數複製
 		for k, v := range varLengthMap {
-			fmt.Println("本輪", k, v)
+			//			fmt.Println("本輪", k, v)
 
 			//若v.Value爲數字，則value爲其長
 			//於任意包，皆應先取其部之定長
@@ -123,13 +123,13 @@ func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
 					Value: val,
 				})
 
-				fmt.Println("結果", i, k, result[i][len(result[i])-1], "二進制：", bin[end:end+value], ",從", end, "到", end+value, "\n")
+				//				fmt.Println("結果", i, k, result[i][len(result[i])-1], "二進制：", bin[end:end+value], ",從", end, "到", end+value, "\n")
 				end += value
 			}
 
 			//XXXXXX可得是包爲 etcs44， 同得NID_XUSER乃前位者也
 			if v.Key == "XXXXXX" {
-				fmt.Println("遇到XXXXXX, 啓用", "./packets/CTCS-"+strconv.Itoa(result[i][k-1].Value.(int)))
+				//				fmt.Println("遇到XXXXXX, 啓用", "./packets/CTCS-"+strconv.Itoa(result[i][k-1].Value.(int)))
 				b, err := ioutil.ReadFile("./packets/CTCS-" + strconv.Itoa(result[i][k-1].Value.(int)) + ".yml") //啓yml檔之相對者
 				if err != nil {
 					fmt.Print(err)
@@ -143,7 +143,7 @@ func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
 				}
 
 				packetLength := BIN2DEC(bin[10:23])
-				fmt.Println("包長：", bin[10:23], "DEC:", packetLength)
+				//				fmt.Println("包長：", bin[10:23], "DEC:", packetLength)
 				//每ETCS-44僅單CTCS之得嵌
 				result[i] = append(result[i], yaml.MapItem{
 					Key:   v.Key,
@@ -156,17 +156,17 @@ func parseUnfixedPart(length int, bin string, varLengthMap YML) (result []YML) {
 				num := result[i][k-1].Value.(int) //數所嵌者
 
 				if num == 0 {
-					fmt.Println("長度爲零，略過數組 \n")
+					//					fmt.Println("長度爲零，略過數組 \n")
 					result[i] = append(result[i], yaml.MapItem{})
 					continue
 				}
 
-				fmt.Println("=====遇到", v.Key, "開始遞歸=====\n")
+				//				fmt.Println("=====遇到", v.Key, "開始遞歸=====\n")
 				result[i] = append(result[i], yaml.MapItem{
 					Key:   v.Key,
 					Value: parseUnfixedPart(num, bin[end:], v.Value.(YML)),
 				})
-				fmt.Println("=====結束遞歸", v.Key, "=====\n")
+				//				fmt.Println("=====結束遞歸", v.Key, "=====\n")
 			}
 
 		}
